@@ -1,0 +1,597 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     23869,        589]
+NotebookOptionsPosition[     19140,        519]
+NotebookOutlinePosition[     19477,        534]
+CellTagsIndexPosition[     19434,        531]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["\<\
+Before running this notebook, ensure that it and \[OpenCurlyQuote]eugenio.m\
+\[CloseCurlyQuote] are located in the same directory.\
+\>", "Text",
+ CellChangeTimes->{{3.729246491661819*^9, 3.72924654074678*^9}, {
+  3.7292627091309843`*^9, 
+  3.729262721728917*^9}},ExpressionUUID->"f1d4ea2e-f7d0-4939-8f45-\
+af8a9671e240"],
+
+Cell[CellGroupData[{
+
+Cell["Always run this section first", "Subsubsection",
+ CellChangeTimes->{{3.7292476200892677`*^9, 
+  3.7292476353767853`*^9}},ExpressionUUID->"200894d9-90ee-4d3d-8d5e-\
+b1ccccf71a4c"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"SetDirectory", "[", 
+   RowBox[{"NotebookDirectory", "[", "]"}], "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.7271855243706417`*^9, 3.72718553383593*^9}, {
+   3.729246464573717*^9, 3.7292464876139174`*^9}, 3.729262734760907*^9, {
+   3.729331117076707*^9, 
+   3.729331117474324*^9}},ExpressionUUID->"a50978db-9b01-46f3-b292-\
+39a3ea4b091b"],
+
+Cell[BoxData[
+ RowBox[{"<<", "eugenio.m"}]], "Input",ExpressionUUID->"29e6ce5f-8fa4-491c-8b2e-4ba696d9504d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Making input files", "Subsection",
+ CellChangeTimes->{{3.729246551455091*^9, 
+  3.729246556437854*^9}},ExpressionUUID->"7a575842-c654-4691-9ea3-\
+239ce39d0a9e"],
+
+Cell["\<\
+Before executing this section, you should make sure that there aren\
+\[CloseCurlyQuote]t preexisting files in your working directory called \
+\[OpenCurlyDoubleQuote]input\[CloseCurlyDoubleQuote], \
+\[OpenCurlyDoubleQuote]input_2d\[CloseCurlyDoubleQuote], \
+\[OpenCurlyDoubleQuote]input_2d_covar\[CloseCurlyDoubleQuote], or \
+\[OpenCurlyDoubleQuote]input_3d\[CloseCurlyDoubleQuote].\
+\>", "Text",
+ CellChangeTimes->{{3.729246566404038*^9, 3.7292466196593924`*^9}, {
+  3.7292467511173773`*^9, 3.7292467521444273`*^9}, {3.729247055757711*^9, 
+  3.729247066894005*^9}, {3.729249424497938*^9, 
+  3.729249429524086*^9}},ExpressionUUID->"b72485e0-234f-4d18-88f1-\
+ea1a2c8e7899"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tV2d", "=", 
+   RowBox[{
+    RowBox[{"3", "*", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"x", "^", "2"}], "+", 
+        RowBox[{"y", "^", "2"}], "-", "4"}], ")"}], "^", "2"}]}], "+", 
+    RowBox[{"0.5", "x"}]}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"tV3d", "=", 
+   RowBox[{
+    RowBox[{"2", "*", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"x1", "^", "2"}], "+", 
+        RowBox[{"x2", "^", "2"}], "+", 
+        RowBox[{"x3", "^", "2"}], "-", "1"}], ")"}], "^", "2"}]}], "-", 
+    RowBox[{"0.25", "x2"}], "+", 
+    RowBox[{"3", "x3"}]}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.729246655225494*^9, 3.7292466690051126`*^9}, {
+  3.729246972588579*^9, 3.729247012770732*^9}, {3.729248538513871*^9, 
+  3.7292485456116533`*^9}},ExpressionUUID->"f2106d19-7545-4216-952c-\
+0a08f2e9b3e7"],
+
+Cell[CellGroupData[{
+
+Cell["Basic input", "Subsubsection",
+ CellChangeTimes->{{3.729246645149418*^9, 
+  3.729246646953351*^9}},ExpressionUUID->"0630641e-e156-493c-8686-\
+9efe3193c7ad"],
+
+Cell["\<\
+The function MakeInputFile requires no more than the potential function whose \
+landscape you wish to probe:\
+\>", "Text",
+ CellChangeTimes->{{3.7292468514132967`*^9, 
+  3.729246887305057*^9}},ExpressionUUID->"a4d4b801-5ed7-4afb-8802-\
+1b49bba92a2a"],
+
+Cell[BoxData[
+ RowBox[{"MakeInputFile", "[", "tV2d", "]"}]], "Input",
+ CellChangeTimes->{{3.729246835613389*^9, 3.729246840347726*^9}, {
+  3.7292470154243803`*^9, 
+  3.72924701584726*^9}},ExpressionUUID->"b1ca6527-7d15-4506-8a95-\
+0508acb8472c"],
+
+Cell["\<\
+The exit code of \[OpenCurlyQuote]1\[CloseCurlyQuote] indicates a success. \
+There should now be a file \[OpenCurlyDoubleQuote]input\
+\[CloseCurlyDoubleQuote] in your working directory. This file is ready to be \
+read by Bertini. Note that Eugenio assumes that all non-numeric symbols in \
+the potential function are the field variables, and those field variables are \
+always written in alpha-numeric order in the input file, e.g. as \
+\[OpenCurlyDoubleQuote]variable_group x, y;\[CloseCurlyDoubleQuote] here. If \
+we were to rerun this command exactly, Eugenio would see that the input file \
+already exists, and so do nothing:\
+\>", "Text",
+ CellChangeTimes->{{3.72924689211679*^9, 3.729246967111141*^9}, {
+  3.729247024622509*^9, 3.7292470853583813`*^9}, {3.729248248464656*^9, 
+  3.729248348930835*^9}, {3.729248458521106*^9, 3.729248476210347*^9}, {
+  3.72925072353533*^9, 
+  3.7292507703517237`*^9}},ExpressionUUID->"310b409b-4875-40ba-b33a-\
+ba60c16bd426"],
+
+Cell[BoxData[
+ RowBox[{"MakeInputFile", "[", "tV2d", "]"}]], "Input",
+ CellChangeTimes->{{3.729246835613389*^9, 3.729246840347726*^9}, {
+   3.7292470154243803`*^9, 3.72924701584726*^9}, 
+   3.729250772276835*^9},ExpressionUUID->"d0116f4b-5e0c-47e0-a051-\
+f62b2f7f485b"],
+
+Cell["\<\
+Now, let' s say that you' re going to be solving for a number of different \
+potentials, and you want to keep track of which input file represents which \
+potential. You can provide a specific file name via\
+\>", "Text",
+ CellChangeTimes->{{3.729248350398611*^9, 3.729248353982984*^9}, {
+  3.729250780477686*^9, 
+  3.72925078130059*^9}},ExpressionUUID->"90dbc337-e7fb-4196-b041-\
+ef58378e50ac"],
+
+Cell[BoxData[
+ RowBox[{"MakeInputFile", "[", 
+  RowBox[{"tV2d", ",", 
+   RowBox[{"FileName", "\[Rule]", "\"\<input_2d\>\""}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.729247086833211*^9, 
+  3.7292470976118402`*^9}},ExpressionUUID->"7267ae69-d06f-4242-b4c0-\
+01b95f8afdd0"],
+
+Cell["\<\
+Note that this file\[CloseCurlyQuote]s contents are identical to \
+\[OpenCurlyDoubleQuote]input\[CloseCurlyDoubleQuote]. But, let\
+\[CloseCurlyQuote]s say that we want to solve a problem where the gradient is \
+not given by the partial derivatives, but by a covariant derivative. This is \
+as simple as providing MakeInputFile with an extra argument \
+\[OpenCurlyQuote]A\[CloseCurlyQuote] such that the covariant derivative is \
+\[OpenCurlyDoubleQuote]D_i = partial_i + A_i\[CloseCurlyDoubleQuote]:\
+\>", "Text",
+ CellChangeTimes->{{3.729247100411929*^9, 3.72924727343701*^9}, {
+  3.729247323029396*^9, 3.7292473399321957`*^9}, {3.729247389692741*^9, 
+  3.7292474266512423`*^9}, {3.729249408647414*^9, 
+  3.729249527544353*^9}},ExpressionUUID->"739595c1-15ec-4578-934f-\
+76e276ff70f7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tA2d", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"-", "I"}], "*", "0.1"}], ",", 
+     RowBox[{"I", "*", "0.1"}]}], "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.7292495385054913`*^9, 
+  3.7292495580449543`*^9}},ExpressionUUID->"2842c3e7-d3c3-4aea-a300-\
+ebe493747346"],
+
+Cell[BoxData[
+ RowBox[{"MakeInputFile", "[", 
+  RowBox[{"tV2d", ",", "tA2d", ",", 
+   RowBox[{"FileName", "\[Rule]", "\"\<input_2d_covar\>\""}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.7292495316654387`*^9, 
+  3.729249571215229*^9}},ExpressionUUID->"2372ff60-e4ae-41ad-81ca-\
+e75d590053e4"],
+
+Cell["\<\
+Next, we want to make an input file for the three - dimensional potential, \
+but we want some extra control over Bertini' s configuration. Namely, we wish \
+to : use a stricter final tolerance for what is considered a solution; use an \
+explicit random seed so that we may later repeat the run exactly; and, use \
+adaptive precision. The correct call is then\
+\>", "Text",
+ CellChangeTimes->{{3.729249528895947*^9, 
+  3.729249529587096*^9}},ExpressionUUID->"f548d179-8332-4faa-a882-\
+2bb4aee77141"],
+
+Cell[BoxData[
+ RowBox[{"MakeInputFile", "[", 
+  RowBox[{"tV3d", ",", 
+   RowBox[{"FileName", "\[Rule]", "\"\<input_3d\>\""}], ",", 
+   RowBox[{"FinalTol", "\[Rule]", 
+    RowBox[{"Power", "[", 
+     RowBox[{"10", ",", 
+      RowBox[{"-", "13"}]}], "]"}]}], ",", 
+   RowBox[{"MPType", "\[Rule]", "2"}], ",", 
+   RowBox[{"RandomSeed", "\[Rule]", "20180305"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.729247427668749*^9, 
+  3.729247503496128*^9}},ExpressionUUID->"3b7c803b-042f-4b1f-a289-\
+8747b861c63a"],
+
+Cell["Now, note that this file has \[OpenCurlyDoubleQuote]variable_group x1, \
+x2, x3;\[CloseCurlyDoubleQuote].", "Text",
+ CellChangeTimes->{{3.7292475132684813`*^9, 3.729247604828264*^9}, {
+  3.729248361603898*^9, 3.729248367800333*^9}, {3.7292484784512243`*^9, 
+  3.729248533669305*^9}},ExpressionUUID->"ef5ee227-e431-407c-994b-\
+d9ee57b400d7"],
+
+Cell["\<\
+The full list of Bertini optional arguments which Eugenio currently supports \
+using are : FinalTol, ImagThreshold, MPType, Precision, CoeffBound, \
+DegreeBound, RandomSeed, and ScreenOut.Default values of all of these are \
+found in the.m file; explanations of how they work are found in the Bertini \
+user manual.\
+\>", "Text",
+ CellChangeTimes->{{3.7292484927034473`*^9, 3.729248509958528*^9}, {
+  3.7292485575024977`*^9, 
+  3.729248559514003*^9}},ExpressionUUID->"47bc827a-1f4a-48ad-a2e3-\
+33f5b93fc60f"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Interpreting results", "Subsection",
+ CellChangeTimes->{{3.729246694490459*^9, 3.72924671825773*^9}, {
+  3.729246770671916*^9, 
+  3.729246775357286*^9}},ExpressionUUID->"b145d860-e6b9-485d-a559-\
+cb0d68900c9e"],
+
+Cell[CellGroupData[{
+
+Cell["Reading output files", "Subsubsection",
+ CellChangeTimes->{{3.729246781422339*^9, 
+  3.7292467837473173`*^9}},ExpressionUUID->"04b82439-f65c-419a-aaa7-\
+cb3e9bbe33b9"],
+
+Cell["\<\
+This section relies on having the files \
+\[OpenCurlyDoubleQuote]raw_solutions_2d\[CloseCurlyDoubleQuote], \
+\[OpenCurlyDoubleQuote]finite_solutions_2d_covar\[CloseCurlyDoubleQuote] and \
+\[OpenCurlyDoubleQuote]real_finite_solutions _3d\[CloseCurlyDoubleQuote] in \
+your working directory. They are some of the solutions files generated by \
+Bertini given the input files created in the preceding section, so \
+alternately, you can make them yourself with Bertini and then rename them \
+appropriately. E.g. the file \[OpenCurlyQuote]finite_solutions\
+\[CloseCurlyQuote] produced after running \[OpenCurlyQuote]./bertini \
+input_2d_covar\[CloseCurlyQuote] should be renamed to \
+\[OpenCurlyQuote]finite_solutions_2d_covar\[CloseCurlyQuote] for this section.\
+\>", "Text",
+ CellChangeTimes->{{3.729246723178464*^9, 3.729246748845862*^9}, {
+  3.729248178067383*^9, 3.729248199471499*^9}, {3.7292487361578913`*^9, 
+  3.7292487371014967`*^9}, {3.729249673945526*^9, 3.7292496794602823`*^9}, {
+  3.7293309037474117`*^9, 3.729330966674609*^9}, {3.7293327807934713`*^9, 
+  3.729332905247733*^9}},ExpressionUUID->"7ca650ab-49c1-40fc-b535-\
+38072ef7388f"],
+
+Cell["To load Bertini output as a list of points, simply call", "Text",
+ CellChangeTimes->{{3.729248073744478*^9, 
+  3.7292481302766027`*^9}},ExpressionUUID->"fcb1c0e4-1ebc-4e2e-bfb0-\
+4052353aac2b"],
+
+Cell[BoxData[
+ RowBox[{"vacua2dcovar", "=", 
+  RowBox[{
+  "ReadOutputFile", "[", "\"\<finite_solutions_2d_covar\>\"", 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.729249666753845*^9, 3.729249690383789*^9}, {
+  3.7293308493475027`*^9, 
+  3.729330853636949*^9}},ExpressionUUID->"5b2fab05-11e4-496c-b62b-\
+705aac623617"],
+
+Cell["\<\
+If you know the solutions to be real, you can remove the imaginary components \
+entirely by setting AllReal to True:\
+\>", "Text",
+ CellChangeTimes->{{3.729332215626711*^9, 
+  3.729332238544709*^9}},ExpressionUUID->"43a0b68b-efa5-4596-a2b1-\
+7e12ce59535f"],
+
+Cell[BoxData[
+ RowBox[{"vacua3d", "=", 
+  RowBox[{"ReadOutputFile", "[", 
+   RowBox[{"\"\<real_finite_solutions_3d\>\"", ",", 
+    RowBox[{"AllReal", "\[Rule]", "True"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.729330909178595*^9, 3.729330912436874*^9}, {
+  3.729332208097476*^9, 
+  3.7293322113845167`*^9}},ExpressionUUID->"a3301349-9a55-48c0-ab10-\
+ed187a24bfae"],
+
+Cell["\<\
+Note that the first coordinate of a point is associated with the first \
+variable in the \[OpenCurlyDoubleQuote]variable_group\[CloseCurlyDoubleQuote] \
+line from the input file, the second coordinate with the second variable, and \
+so on. So in the above case, each point is (x_i,y_i). The order of solutions \
+is just the one which Bertini arrived at, and will in general depend on the \
+random seed chosen.\
+\>", "Text",
+ CellChangeTimes->{{3.7292482213140707`*^9, 3.729248235889173*^9}, {
+  3.7292483742293453`*^9, 3.729248437607789*^9}, {3.7292486170378647`*^9, 
+  3.729248628719058*^9}, {3.729248706949491*^9, 
+  3.729248707065241*^9}},ExpressionUUID->"5093f9cd-b562-4b3b-bd31-\
+3bacf024be50"],
+
+Cell["\<\
+Note that while Bertini\[CloseCurlyQuote]s \[OpenCurlyDoubleQuote]output_raw\
+\[CloseCurlyDoubleQuote] file has a slightly different structure from the \
+rest of its output files, Eugenio can handle both:\
+\>", "Text",
+ CellChangeTimes->{{3.729248727674966*^9, 3.729248775114421*^9}, {
+  3.729330826362578*^9, 
+  3.729330830050652*^9}},ExpressionUUID->"503e0229-6511-44b7-957b-\
+007f293a746a"],
+
+Cell[BoxData[
+ RowBox[{"vacua2d", "=", 
+  RowBox[{"ReadOutputFile", "[", "\"\<raw_solutions_2d\>\"", "]"}]}]], "Input",\
+
+ CellChangeTimes->{
+  3.729330872949909*^9, {3.729330944994398*^9, 
+   3.7293309470353937`*^9}},ExpressionUUID->"22e9c3cd-5507-4a84-880a-\
+039ebc949c4d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Simple analyses", "Subsubsection",
+ CellChangeTimes->{{3.729246786814695*^9, 
+  3.729246799823213*^9}},ExpressionUUID->"8d6cffab-3719-43d1-b5c1-\
+f49914dbdd22"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"tV2d", "=", 
+   RowBox[{
+    RowBox[{"3", "*", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"x", "^", "2"}], "+", 
+        RowBox[{"y", "^", "2"}], "-", "4"}], ")"}], "^", "2"}]}], "+", 
+    RowBox[{"0.5", "x"}]}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"tV3d", "=", 
+   RowBox[{
+    RowBox[{"2", "*", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"x1", "^", "2"}], "+", 
+        RowBox[{"x2", "^", "2"}], "+", 
+        RowBox[{"x3", "^", "2"}], "-", "1"}], ")"}], "^", "2"}]}], "-", 
+    RowBox[{"0.25", "x2"}], "+", 
+    RowBox[{"3", "x3"}]}]}], ";"}]}], "Input",ExpressionUUID->"1a9c71fc-e1eb-\
+488f-81b2-d1ab6670de82"],
+
+Cell["\<\
+This section relies on you already having run the section \
+\[OpenCurlyDoubleQuote]Reading output files\[CloseCurlyDoubleQuote].\
+\>", "Text",
+ CellChangeTimes->{{3.729246810578628*^9, 
+  3.729246824668488*^9}},ExpressionUUID->"e96243a2-7d1b-4229-a99d-\
+7990d87167bc"],
+
+Cell["\<\
+Most simply,  the function FindEigenvalueList finds the eigenvalues of a \
+potential associated with all vacuum solutions:\
+\>", "Text",
+ CellChangeTimes->{{3.729248792636065*^9, 3.7292488211146317`*^9}, {
+  3.7292624838609457`*^9, 
+  3.7292625307347307`*^9}},ExpressionUUID->"b0548782-3f9d-4418-8709-\
+ef59ce4a68cc"],
+
+Cell[BoxData[
+ RowBox[{"FindEigenvalueList", "[", 
+  RowBox[{"tV2d", ",", "vacua2d"}], "]"}]], "Input",
+ CellChangeTimes->{{3.729248824591482*^9, 
+  3.7292488356190853`*^9}},ExpressionUUID->"8425ff90-392c-4fd7-9fed-\
+b0b8ae0753eb"],
+
+Cell["\<\
+You may replace the potential function V by a list {V,k}, and thereby solve \
+the generalized eigenvalue problem with respect to some matrix k:\
+\>", "Text",
+ CellChangeTimes->{{3.729248838944613*^9, 3.729248874817481*^9}, {
+  3.729248971569442*^9, 3.72924897522655*^9}, {3.729262539300354*^9, 
+  3.729262587701172*^9}},ExpressionUUID->"46503dec-0160-42d5-aeed-\
+9a9f82011941"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tk2d", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", "2.5"}], "}"}]}], "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.729248895623438*^9, 
+  3.729248904427774*^9}},ExpressionUUID->"8989ab9d-f824-4d55-8b84-\
+d1cae21050b6"],
+
+Cell[BoxData[
+ RowBox[{"FindEigenvalueList", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"tV2d", ",", "tk2d"}], "}"}], ",", "vacua2d"}], "]"}]], "Input",
+ CellChangeTimes->{{3.729248876155237*^9, 
+  3.729248894086931*^9}},ExpressionUUID->"900e6014-5ea8-4ef0-bcff-\
+9c100f0062a3"],
+
+Cell["\<\
+Optionally, you may replace all partial derivatives by covariant derivatives \
+by providing the vector A, where the covariant derivative is D_i = partial_i \
++ A_i.\
+\>", "Text",
+ CellChangeTimes->{{3.729248913337083*^9, 3.729248936743348*^9}, {
+  3.729248969273238*^9, 3.729248983079607*^9}, {3.729249602344068*^9, 
+  3.7292496181287193`*^9}, {3.7292497051178827`*^9, 3.7292497095650053`*^9}, {
+  3.7292622279706373`*^9, 3.729262229326689*^9}, {3.7292624278830347`*^9, 
+  3.729262480000926*^9}},ExpressionUUID->"217c39bb-b519-4a3a-a4a0-\
+d017211e42f3"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tA2d", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"-", "I"}], "*", "0.1"}], ",", 
+     RowBox[{"I", "*", "0.1"}]}], "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.729249724226316*^9, 
+  3.7292497352173567`*^9}},ExpressionUUID->"7a3218d5-650e-4f57-a5ab-\
+2cec81534f78"],
+
+Cell[BoxData[
+ RowBox[{"FindEigenvalueList", "[", 
+  RowBox[{"tV2d", ",", "vacua2dcovar", ",", "tA2d"}], "]"}]], "Input",
+ CellChangeTimes->{{3.729249631987659*^9, 3.7292496347842216`*^9}, {
+  3.729249698740862*^9, 3.729249740367481*^9}, {3.729332284434079*^9, 
+  3.729332285385543*^9}},ExpressionUUID->"efdcae57-5577-4f54-aec2-\
+d32d4a8b9a9d"],
+
+Cell["\<\
+Finally, you can specify a function to apply to the Hessian before finding \
+the eigenvalues :\
+\>", "Text",
+ CellChangeTimes->{{3.729262237492339*^9, 3.729262314495075*^9}, {
+  3.72926260827986*^9, 
+  3.729262623616569*^9}},ExpressionUUID->"f7b9fe80-0eac-4fb5-bf44-\
+605eda96996c"],
+
+Cell[BoxData[
+ RowBox[{"FindEigenvalueList", "[", 
+  RowBox[{"tV3d", ",", "vacua3d", ",", 
+   RowBox[{"MatrixNorm", "\[Rule]", 
+    RowBox[{"Function", "[", 
+     RowBox[{"M", ",", 
+      RowBox[{
+       RowBox[{"Transpose", "[", "M", "]"}], ".", "M"}]}], "]"}]}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.729262316174901*^9, 3.72926235289642*^9}, {
+  3.729332315884973*^9, 
+  3.729332317545454*^9}},ExpressionUUID->"2aa4539d-30d9-4062-94ed-\
+12150dcfd7f6"],
+
+Cell[TextData[{
+ "In this case, we have chosen to find the eigenvalues of ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox["M", "T"], "M"}], TraditionalForm]],ExpressionUUID->
+  "8e0c0fa4-f1c8-4d4f-aa8a-de20e5c92f63"],
+ " instead of the eigenvalues of ",
+ Cell[BoxData[
+  FormBox["M", TraditionalForm]],ExpressionUUID->
+  "fbd90311-32e5-4a7f-b182-2303f1c9fd3c"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.729262354534403*^9, 
+  3.72926240736478*^9}},ExpressionUUID->"fda0247a-de5b-4cec-a82e-\
+43804cc0f036"],
+
+Cell["\<\
+Any or all three of these modifications to the basic functionality may be \
+mixed and matched as your situation demands.\
+\>", "Text",
+ CellChangeTimes->{{3.7292626280393333`*^9, 
+  3.729262678535263*^9}},ExpressionUUID->"92af46c1-5184-4b9f-8316-\
+9b9e92a5cc70"]
+}, Open  ]]
+}, Closed]]
+},
+WindowSize->{840, 986},
+WindowMargins->{{Automatic, 0}, {0, Automatic}},
+FrontEndVersion->"11.2 for Linux x86 (64-bit) (September 10, 2017)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 330, 7, 36, "Text",ExpressionUUID->"f1d4ea2e-f7d0-4939-8f45-af8a9671e240"],
+Cell[CellGroupData[{
+Cell[913, 31, 184, 3, 46, "Subsubsection",ExpressionUUID->"200894d9-90ee-4d3d-8d5e-b1ccccf71a4c"],
+Cell[1100, 36, 455, 10, 57, "Input",ExpressionUUID->"a50978db-9b01-46f3-b292-39a3ea4b091b"],
+Cell[1558, 48, 108, 1, 31, "Input",ExpressionUUID->"29e6ce5f-8fa4-491c-8b2e-4ba696d9504d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1703, 54, 166, 3, 55, "Subsection",ExpressionUUID->"7a575842-c654-4691-9ea3-239ce39d0a9e"],
+Cell[1872, 59, 681, 12, 60, "Text",ExpressionUUID->"b72485e0-234f-4d18-88f1-ea1a2c8e7899"],
+Cell[2556, 73, 866, 26, 55, "Input",ExpressionUUID->"f2106d19-7545-4216-952c-0a08f2e9b3e7"],
+Cell[CellGroupData[{
+Cell[3447, 103, 162, 3, 46, "Subsubsection",ExpressionUUID->"0630641e-e156-493c-8686-9efe3193c7ad"],
+Cell[3612, 108, 260, 6, 60, "Text",ExpressionUUID->"a4d4b801-5ed7-4afb-8802-1b49bba92a2a"],
+Cell[3875, 116, 245, 5, 31, "Input",ExpressionUUID->"b1ca6527-7d15-4506-8a95-0508acb8472c"],
+Cell[4123, 123, 974, 16, 132, "Text",ExpressionUUID->"310b409b-4875-40ba-b33a-ba60c16bd426"],
+Cell[5100, 141, 269, 5, 31, "Input",ExpressionUUID->"d0116f4b-5e0c-47e0-a051-f62b2f7f485b"],
+Cell[5372, 148, 404, 8, 60, "Text",ExpressionUUID->"90dbc337-e7fb-4196-b041-ef58378e50ac"],
+Cell[5779, 158, 272, 6, 31, "Input",ExpressionUUID->"7267ae69-d06f-4242-b4c0-01b95f8afdd0"],
+Cell[6054, 166, 795, 13, 108, "Text",ExpressionUUID->"739595c1-15ec-4578-934f-76e276ff70f7"],
+Cell[6852, 181, 327, 10, 31, "Input",ExpressionUUID->"2842c3e7-d3c3-4aea-a300-ebe493747346"],
+Cell[7182, 193, 294, 7, 31, "Input",ExpressionUUID->"2372ff60-e4ae-41ad-81ca-e75d590053e4"],
+Cell[7479, 202, 508, 9, 108, "Text",ExpressionUUID->"f548d179-8332-4faa-a882-2bb4aee77141"],
+Cell[7990, 213, 502, 12, 55, "Input",ExpressionUUID->"3b7c803b-042f-4b1f-a289-8747b861c63a"],
+Cell[8495, 227, 346, 5, 36, "Text",ExpressionUUID->"ef5ee227-e431-407c-994b-d9ee57b400d7"],
+Cell[8844, 234, 518, 10, 108, "Text",ExpressionUUID->"47bc827a-1f4a-48ad-a2e3-33f5b93fc60f"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[9411, 250, 216, 4, 39, "Subsection",ExpressionUUID->"b145d860-e6b9-485d-a559-cb0d68900c9e"],
+Cell[CellGroupData[{
+Cell[9652, 258, 173, 3, 46, "Subsubsection",ExpressionUUID->"04b82439-f65c-419a-aaa7-cb3e9bbe33b9"],
+Cell[9828, 263, 1155, 18, 132, "Text",ExpressionUUID->"7ca650ab-49c1-40fc-b535-38072ef7388f"],
+Cell[10986, 283, 199, 3, 36, "Text",ExpressionUUID->"fcb1c0e4-1ebc-4e2e-bfb0-4052353aac2b"],
+Cell[11188, 288, 317, 8, 31, "Input",ExpressionUUID->"5b2fab05-11e4-496c-b62b-705aac623617"],
+Cell[11508, 298, 266, 6, 60, "Text",ExpressionUUID->"43a0b68b-efa5-4596-a2b1-7e12ce59535f"],
+Cell[11777, 306, 368, 8, 31, "Input",ExpressionUUID->"a3301349-9a55-48c0-ab10-ed187a24bfae"],
+Cell[12148, 316, 709, 12, 108, "Text",ExpressionUUID->"5093f9cd-b562-4b3b-bd31-3bacf024be50"],
+Cell[12860, 330, 403, 8, 60, "Text",ExpressionUUID->"503e0229-6511-44b7-957b-007f293a746a"],
+Cell[13266, 340, 275, 7, 31, "Input",ExpressionUUID->"22e9c3cd-5507-4a84-880a-039ebc949c4d"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13578, 352, 166, 3, 46, "Subsubsection",ExpressionUUID->"8d6cffab-3719-43d1-b5c1-f49914dbdd22"],
+Cell[13747, 357, 698, 23, 55, "Input",ExpressionUUID->"1a9c71fc-e1eb-488f-81b2-d1ab6670de82"],
+Cell[14448, 382, 278, 6, 36, "Text",ExpressionUUID->"e96243a2-7d1b-4229-a99d-7990d87167bc"],
+Cell[14729, 390, 327, 7, 60, "Text",ExpressionUUID->"b0548782-3f9d-4418-8709-ef59ce4a68cc"],
+Cell[15059, 399, 231, 5, 31, "Input",ExpressionUUID->"8425ff90-392c-4fd7-9fed-b0b8ae0753eb"],
+Cell[15293, 406, 387, 7, 60, "Text",ExpressionUUID->"46503dec-0160-42d5-aeed-9a9f82011941"],
+Cell[15683, 415, 353, 11, 31, "Input",ExpressionUUID->"8989ab9d-f824-4d55-8b84-d1cae21050b6"],
+Cell[16039, 428, 281, 7, 31, "Input",ExpressionUUID->"900e6014-5ea8-4ef0-bcff-9c100f0062a3"],
+Cell[16323, 437, 563, 10, 60, "Text",ExpressionUUID->"217c39bb-b519-4a3a-a4a0-d017211e42f3"],
+Cell[16889, 449, 325, 10, 31, "Input",ExpressionUUID->"7a3218d5-650e-4f57-a5ab-2cec81534f78"],
+Cell[17217, 461, 344, 6, 31, "Input",ExpressionUUID->"efdcae57-5577-4f54-aec2-d32d4a8b9a9d"],
+Cell[17564, 469, 292, 7, 36, "Text",ExpressionUUID->"f7b9fe80-0eac-4fb5-bf44-605eda96996c"],
+Cell[17859, 478, 460, 12, 31, "Input",ExpressionUUID->"2aa4539d-30d9-4062-94ed-12150dcfd7f6"],
+Cell[18322, 492, 515, 15, 36, "Text",ExpressionUUID->"fda0247a-de5b-4cec-a82e-43804cc0f036"],
+Cell[18840, 509, 272, 6, 60, "Text",ExpressionUUID->"92af46c1-5184-4b9f-8316-9b9e92a5cc70"]
+}, Open  ]]
+}, Closed]]
+}
+]
+*)
+

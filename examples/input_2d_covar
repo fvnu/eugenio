@@ -1,0 +1,13 @@
+CONFIG
+FINALTOL: 1.e-11;
+IMAGTHRESHOLD: 1.e-8;
+MPTYPE: 0;
+RANDOMSEED: 0;
+SCREENOUT: 0;
+END;
+INPUT
+variable_group x, y;
+function f1, f2;
+f1 = 0.5 + 12*x*(-4 + x^2 + y^2) - (0. + 0.1*I)*(0.5*x + 3*(-4 + x^2 + y^2)^2);
+f2 = 12*y*(-4 + x^2 + y^2) + (0. + 0.1*I)*(0.5*x + 3*(-4 + x^2 + y^2)^2);
+END;

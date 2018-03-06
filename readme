@@ -1,0 +1,26 @@
+PURPOSE
+
+  Eugenio acts as a simple Mathematica frontend for the Bertini numerical algebraic geometry software, with a particular focus on problems in physics related to analyzing a potential landscape. So, in addition to being able to produce Bertini input files / read Bertini output files, it is capable of performing some simple analyses of the vacua of a landscape once they are known.
+
+
+
+INSTRUCTIONS/USAGE
+
+  The code is documented with what is hopefully sufficient detail to answer any questions about usage which might arise. There are also some simple examples included in the 'examples' folder, which may be found on the project's GitHub page.
+
+
+
+DISCLAIMERS/LICENSE
+
+  Eugenio is not affiliated with Bertini, nor with Wolfram Research.
+  
+  Bertini itself is copyright (C) 2016 by authors Daniel J. Bates, Jonathan D. Hauenstein, Andrew J. Sommese, and Charles W. Wampler II. You may find it at (http://bertini.nd.edu).
+
+  This package is provided without guarantee or warranty, and it released under the CC BY-SA 4.0 license (https://creativecommons.org/licenses/by-sa/4.0/).
+
+
+
+CONTACT
+
+  GitHub: fvnu
+  Website: jmwachter.com
