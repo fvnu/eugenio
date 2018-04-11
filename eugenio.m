@@ -2,11 +2,18 @@
 
 (**** INTRODUCTION ****)
 
-(** This package serves as a simple Mathematica frontend to the Bertini numerical algebraic geometry software (http://bertini.nd.edu) for those interested in using that program to analyze a potential landscape in e.g. string theory. It is capable of: **)
+(** This package serves as a simple Mathematica frontend to the Bertini numerical algebraic geometry software: **)
+(**    Bertini(TM) version 1.5.1 **)
+(**    Authors: D.J. Bates, J.D. Hauenstein, A.J. Sommese, C.W. Wampler **)
+(**    Copyright (C) 2016 **)
+(** (available at http://bertini.nd.edu) **)
+
+(** This package is intended for use by those interested in using Bertini to analyze a potential landscape in e.g. string theory. It is capable of: **)
 (**    producing input files that Bertini can interpret, **)
 (**    reading output files that Bertini has created, **)
 (**    performing simple analyses of the characteristics of the potential at its vacua. **)
-(** There are doubtless bugs in the program. If you find one, I would appreciate you letting me know. But, I do not generally consider errors thrown by Mathematica due to incorrect user input to be bugs **)
+
+(** There are doubtless bugs in this package. If you find one, I would appreciate you letting me know **)
 (** This package was originally created by Jeremy M Wachter (www.jmwachter.com). It is provided without guarantee or warranty, and is released under the CC BY-SA 4.0 license (https://creativecommons.org/licenses/by-sa/4.0/) **)
 
 
@@ -15,11 +22,13 @@ BeginPackage["Eugenio`"]
 
 EugenioVersion = "1.0.0"
 
-(**** OPTIONS AND USAGE FOR CERTAIN FUNCTIONS ****)
+(**** OPTIONS, USAGE, AND ERRORS FOR CERTAIN FUNCTIONS ****)
 
 MakeInputFile::usage = "MakeInputFile[V] takes a potential function 'V' in N variables and produces a Bertini input file whose N functions are the gradient of 'V'. You may pass certain Bertini config options as options to this function."
-Options[MakeInputFile]={FileName->"input",FinalTol->Power[10,-11],ImagThreshold->Power[10,-8],MPType->0,Precision->96,CoeffBound->1000,DegreeBound->5,RandomSeed->0,ScreenOut->0};
+Options[MakeInputFile]={FileName->"input",VariableGrouping->{},FinalTol->Power[10,-11],ImagThreshold->Power[10,-8],MPType->0,Precision->96,CoeffBound->1000,DegreeBound->5,RandomSeed->0,ScreenOut->0};
 FileName::usage = "FileName an option for MakeInputFile, which is the name of the file produced. It defaults to 'input'."
+VariableGrouping::usage = "VariableGrouping is an option for MakeInputFile, which instructs how the variables are to be grouped and if they are homogeneous or not. The proper format is: {N,{x_i..x_j},{x_j+1..x_k}..}, where N is 0 for nonhomogeneous groups and 1 is for homogeneous groups. Each list of variables belongs to a different group."
+MakeInputFile::vgtype = "The first argument of VariableGrouping must be 0 (for nonhomogeneous variable groups) or 1 (for homogeneous)."
 
 ReadOutputFile::usage = "ReadOutputFile[filename] reads a solutions file produced by Bertini. The file can have any name, but must be in one of the standard forms of: finite_solutions, nonsingular_solutions, raw_solutions, real_finite_solutions, or singular_solutions."
 Options[ReadOutputFile]={AllReal->False};
@@ -29,18 +38,23 @@ FindEigenvalueList::usage = "FindEigenvalueList[{V,k},vacua,A] finds the general
 Options[FindEigenvalueList]={MatrixNorm->Identity};
 MatrixNorm::usage = "MatrixNorm is an option for FindEigenvalueList, which maps the Hessian of V to another matrix of identical dimension which is then used as the LHS of the eigenvalue problem."
 
+GetTadpole::lown = "N must be an integer greater than 1";
+
 
 (**** I/O FUNCTIONS ****)
 
 (** Creates an input file for Bertini given a potential function 'V', and optionally a vector 'A' by which we form the covariant derivative D_i = partial_i + A_i **)
+(** Alternately, accepts as 'V' a list of the polynomials representing the gradients and constraint equations which comprise the polynomial system to solve **)
 (** The user may specify a subset of the full set of settable parameters of Bertini, which is to say, the ones I thought might be useful, or needed for some reason; they are named exactly as Bertini understands them, but in CamelCase **)
 MakeInputFile[V_,opts:OptionsPattern[]]:=MakeInputFile[V,Table[0,Length[Variables@V]],FilterRules[{opts},Options[MakeInputFile]]];
 MakeInputFile[V_,A_,OptionsPattern[]]:=Module[{fileName=OptionValue[FileName],pNames,X=Sort@Variables@V,P},
     If[FileExistsQ[fileName],
         Print["File '",fileName,"' already exists!"];Return[0,Module]];
-    P=PotentialToGradient[V,A];
-    If[MemberQ[Variables/@P,{}],
-        Print["One or more of the gradients are constant. Exiting."];Return[0,Module]];
+    If[ListQ[V],
+        P=V;X=Sort[Union@@Variables/@P],
+        P=PotentialToGradient[V,A];X=Sort@Variables@V;
+            If[MemberQ[Variables/@P,{}],
+                Print["One or more of the gradients are constant. Exiting."];Return[0,Module]]];
     pNames=Table["f"<>ToString[i],{i,Length[P]}];
     s=CreateFile[fileName];
     WriteLine[s,"CONFIG"];
@@ -70,13 +84,19 @@ MakeInputFile[V_,A_,OptionsPattern[]]:=Module[{fileName=OptionValue[FileName],pN
         Print["ScreenOut must be 0 or 1"]];
     WriteLine[s,"END;"];
     WriteLine[s,"INPUT"];
-    WriteLine[s,"variable_group "<>StringTake[#,{2,Length[#]-2}]&@ToString[X]<>";"];
+    vg=OptionValue[VariableGrouping];
+    If[vg=={},
+        WriteLine[s,"variable_group "<>StringTake[#,{2,Length[#]-2}]&@ToString[X]<>";"],
+        If[Or[vg[[1]]==0,vg[[1]]==1],
+            Do[WriteLine[s,If[vg[[1]]==0,"variable_group ","hom_variable_group "]<>StringTake[#,{2,Length[#]-2}]&@ToString[vg[[i]]]<>";"],{i,2,Length[vg]}],
+            Message[MakeInputFile::vgtype];Return[0,Module]]];
     WriteLine[s,"function "<>StringTake[#,{2,Length[#]-2}]&@ToString[pNames]<>";"];
     Do[WriteLine[s,pNames[[i]]<>" = "<>ToString[P[[i]],InputForm]<>";"],{i,Length[pNames]}];
     WriteLine[s,"END;"];
     Close[s];
     Return[1];
 ];
+
 
 (** Reads the output file specified by 'fileName' and returns a list of the locations of the vacua reported by that output file **)
 (** Because Bertini reports as real those points with all imaginary parts below IMAGTHRESHOLD, but does not write those imaginary parts as zero, you may set the option 'AllReal' to True in order to discard all imaginary components **)
@@ -100,7 +120,7 @@ ReadOutputFile[fileName_,OptionsPattern[]]:=Module[{},
 ];
 
 (** Removes the imaginary parts of each coordinate of a list of points LIST which are below CUTOFF **)
-ImTrim[list_,cutoff_]:=Map[If[Abs[Im[#]]<cutoff,Re[#]]&,list,{2}];
+ImTrim[list_,cutoff_:Power[10,-8]]:=Map[If[Abs[Im[#]]<cutoff,Re[#]]&,list,{2}];
 
 
 
@@ -128,5 +148,32 @@ FindEigenvalueList[Vk_,vacua_,A_,OptionsPattern[]]:=Module[{V,X,k,norm=OptionVal
         V=Vk[[1]];X=Sort@Variables@V;k=Vk[[2]],
         V=Vk;X=Sort@Variables@V;k=IdentityMatrix[Length@X]];
     Eigenvalues[{norm@#,k}]&/@(PotentialToHessian[V,A]/.(Thread[X->#]&/@vacua))];
+
+
+(**** GENESIS FUNCTIONS ****)
+
+(** Given an (optional) upper limit 'Q' and an (optional) number of parameters 'n', returns a list of 'n' parameters which satisfy the tadpole condition: **)
+(** \sum_i x_i^2 <= Q, i\in{1,n}, each x_i an integer **)
+GetTadpole[Q_:100,n_:4]:=Module[{tp},
+    While[True, 
+        tp = Round[(((Sqrt[Q]+Sqrt[n])*Power[RandomReal[],1/n]/Norm[#])*#)&@RandomVariate[NormalDistribution[],n]];
+        If[Norm[tp]<Sqrt[Q],Break[]]
+    ];
+    tp
+];
+
+(** Generates a list of for a toy model of supergravity of two complex scalar fields z and t (tau) representing the modulus and the axio-dilaton, respectively **)
+(** The variables are thus z, t, their complex conjugates (zb and tb), and the auxillary real variables ax and ay (which prevent solutions with z=zb and t=tb) **)
+(** Takes an argument 'Q' which is the upper limit of the tadpole constraint **)
+ToyModelZT[pList_:GetTadpole[]]:=Module[{m,n,p,q,f1,f2,f3,f4,f5,f6},
+    {m,n,p,q}=pList;
+    f1 = (m-t*n)+(p+t*q)*zb+(1/2)*(q-t*p)*zb^2+(1/6)*(n+t*m)*zb^3;
+    f2 = (m-tb*n)+(p+tb*q)*z+(1/2)*(q-tb*p)*z^2+(1/6)*(n+tb*m)*z^3;
+    f3 = -3*(m-t*n)-(p+t*q)*(zb+2*z)-(q-t*p)*(zb+(1/2)*z)*z-(1/2)*(n+t*m)*z^2*zb;
+    f4 = -3*(m-tb*n)-(p+tb*q)*(z+2*zb)-(q-tb*p)*(z+(1/2)*zb)*zb-(1/2)*(n+tb*m)*zb^2*z;
+    f5 = 1-I*ax*(t-tb);
+    f6 = 1-I*ay*(z-zb);
+    {f1,f2,f3,f4,f5,f6}
+];
 
 EndPackage[]
