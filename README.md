@@ -8,4 +8,4 @@ This project is not associated with Bertini, which is:
     Authors: D.J. Bates, J.D. Hauenstein, A.J. Sommese, C.W. Wampler
     Copyright (C) 2016
     
-(available at: http://bertini.nd.edu)
+(available at: http://bertini.nd.edu/download.html)
