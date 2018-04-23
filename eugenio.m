@@ -14,13 +14,17 @@
 (**    performing simple analyses of the characteristics of the potential at its vacua. **)
 
 (** There are doubtless bugs in this package. If you find one, I would appreciate you letting me know **)
-(** This package was originally created by Jeremy M Wachter (www.jmwachter.com). It is provided without guarantee or warranty, and is released under the CC BY-SA 4.0 license (https://creativecommons.org/licenses/by-sa/4.0/) **)
+(** This package was originally created by Jeremy M Wachter (github: fvnu ; web: www.jmwachter.com). It is provided without guarantee or warranty, and is released under the CC BY-SA 4.0 license (https://creativecommons.org/licenses/by-sa/4.0/) **)
 
 
 
 BeginPackage["Eugenio`"]
 
-EugenioVersion = "1.0.0"
+EugenioVersion = "1.1.0"
+
+(**** CONSTANTS ****)
+
+OutputFiles={"raw_solutions","finite_solutions","real_finite_solutions","nonsingular_solutions","singular_solutions"};
 
 (**** OPTIONS, USAGE, AND ERRORS FOR CERTAIN FUNCTIONS ****)
 
@@ -34,10 +38,20 @@ ReadOutputFile::usage = "ReadOutputFile[filename] reads a solutions file produce
 Options[ReadOutputFile]={AllReal->False};
 AllReal::usage = "AllReal is an option for ReadOutputFile which can be False (default) or True. If set to True, it drops the imaginary parts of all vacua."
 
+FindVacua::usage = "HOLD"
+Options[FindVacua]={BertiniPath->"",SaveOutputFiles->{},RenameOutputFiles->""};
+BertiniPath::usage = "BertiniPath is an option for FindVacua which tells Eugenio where the 'bertini.sh' file lives. It should be given without the trailing '/'."
+SaveOutputFiles::usage = "SaveOutputFiles is an option for FindVacua which is a list of length 2. The first entry should be the location to which you wish to save the output files, and the second entry should be which of the output files you wish to save. This second entry should always use the list of possible output files known to Bertini (see the variable 'OutputFiles' for a full list), even if you are using the RenameOutputFiles option at the same time."
+RenameOutputFiles::usage = "RenameOutputFiles is an option for FindVacua which appends to all of the Bertini output files (as given in the variable 'OutputFiles') the string given to it as an argument."
+FindVacua::badsave = "The option 'SaveOutputFiles' is malformed. Check to ensure that it is a two-element list with the first element being the directory to save files to, and the second being a list of the Bertini output files you wish to save."
+FindVacua::makefail = "FindVacua failed while trying to make an output file with input: `1`."
+FindVacua::nobertini = "The command 'bertini' could not be executed. If you set 'BertiniPath', make sure it points to the folder containing the Bertini executable. If you did not set 'BertiniPath', make sure you have put the Bertini executable in your /bin/ folder."
+
 FindEigenvalueList::usage = "FindEigenvalueList[{V,k},vacua,A] finds the generalized eigenvalues of the potential function 'V' with respect to the matrix 'k' at a list of minima 'vacua'. It is optional to provide a vector 'A', in which case the Hessian is constructed with the covariant derivative D_i = partial_i + A_i. You may also provide 'V' in place of '{V,k}', in which case the regular eigenvalues are found."
 Options[FindEigenvalueList]={MatrixNorm->Identity};
 MatrixNorm::usage = "MatrixNorm is an option for FindEigenvalueList, which maps the Hessian of V to another matrix of identical dimension which is then used as the LHS of the eigenvalue problem."
 
+GetTadpole::usage = "GetTadpole[Q,n] returns a list of n integers which satisfy the condition that the sum of the squares of the integers is less than or equal to Q. Note that Q can be any real positive number."
 GetTadpole::lown = "N must be an integer greater than 1";
 
 
@@ -46,15 +60,15 @@ GetTadpole::lown = "N must be an integer greater than 1";
 (** Creates an input file for Bertini given a potential function 'V', and optionally a vector 'A' by which we form the covariant derivative D_i = partial_i + A_i **)
 (** Alternately, accepts as 'V' a list of the polynomials representing the gradients and constraint equations which comprise the polynomial system to solve **)
 (** The user may specify a subset of the full set of settable parameters of Bertini, which is to say, the ones I thought might be useful, or needed for some reason; they are named exactly as Bertini understands them, but in CamelCase **)
-MakeInputFile[V_,opts:OptionsPattern[]]:=MakeInputFile[V,Table[0,Length[Variables@V]],FilterRules[{opts},Options[MakeInputFile]]];
+MakeInputFile[V_,opts:OptionsPattern[]]:=MakeInputFile[V,Table[0,Length[Variables@V]],Sequence[opts]];
 MakeInputFile[V_,A_,OptionsPattern[]]:=Module[{fileName=OptionValue[FileName],pNames,X=Sort@Variables@V,P},
     If[FileExistsQ[fileName],
-        Print["File '",fileName,"' already exists!"];Return[0,Module]];
+        Print["File '",fileName,"' already exists!"];Return[False,Module]];
     If[ListQ[V],
         P=V;X=Sort[Union@@Variables/@P],
         P=PotentialToGradient[V,A];X=Sort@Variables@V;
             If[MemberQ[Variables/@P,{}],
-                Print["One or more of the gradients are constant. Exiting."];Return[0,Module]]];
+                Print["One or more of the gradients are constant. Exiting."];Return[False,Module]]];
     pNames=Table["f"<>ToString[i],{i,Length[P]}];
     s=CreateFile[fileName];
     WriteLine[s,"CONFIG"];
@@ -94,7 +108,7 @@ MakeInputFile[V_,A_,OptionsPattern[]]:=Module[{fileName=OptionValue[FileName],pN
     Do[WriteLine[s,pNames[[i]]<>" = "<>ToString[P[[i]],InputForm]<>";"],{i,Length[pNames]}];
     WriteLine[s,"END;"];
     Close[s];
-    Return[1];
+    Return[True];
 ];
 
 
@@ -105,12 +119,12 @@ MakeInputFile[V_,A_,OptionsPattern[]]:=Module[{fileName=OptionValue[FileName],pN
 ReadOutputFile[fileName_,OptionsPattern[]]:=Module[{},
     If[FileExistsQ[fileName],
         s=OpenRead[fileName],
-        Print["File '",fileName,"' doesn't exist!"];Return[0,Module]];
+        Print["File '",fileName,"' doesn't exist!"];Return[False,Module]];
     results=ReadList[s,Number];
     Close[s];
     nVacua=results[[1]];
     If[nVacua==0,
-        Print["No results in '",fileName,"'. Exiting."];Return[0,Module]];
+        Print["No results in '",fileName,"'. Exiting."];Return[False,Module]];
     If[IntegerQ[results[[2]]],
         results=Delete[results,Table[{2+((Length[results]-1)/nVacua)*(i-1)},{i,nVacua}]]];
     nFields=(Length[results]-1)/(2*nVacua);
@@ -122,7 +136,37 @@ ReadOutputFile[fileName_,OptionsPattern[]]:=Module[{},
 (** Removes the imaginary parts of each coordinate of a list of points LIST which are below CUTOFF **)
 ImTrim[list_,cutoff_:Power[10,-8]]:=Map[If[Abs[Im[#]]<cutoff,Re[#]]&,list,{2}];
 
-
+(** Creates an input file, runs Bertini on the input file, and renames the output file(s) according to the name of the input file **)
+FindVacua[V_,opts:OptionsPattern[{FindVacua,MakeInputFile}]]:=FindVacua[V,Table[0,{Length[Variables@V]}],Sequence[opts]];
+FindVacua[V_,A_,opts:OptionsPattern[{FindVacua,MakeInputFile}]]:=Module[{LocPrefix,Suffix,SaveFiles,SavePath},
+    LocPrefix=OptionValue[BertiniPath];
+    Suffix=OptionValue[RenameOutputFiles];
+    If[LocPrefix!="/home/jmw/BertiniLinux64_v1.5.1/",Message[FindVacua::nobertini];Return[False,Module]];
+    (* If the input file can't be created, warn and exit *)
+    makeFlag=MakeInputFile[V,A,FilterRules[{opts},Options[MakeInputFile]]];
+    If[Not[makeFlag],Message[FindVacua::makefail,{V,A}];Return[False,Module]];
+    (* If the user doesn't specify anything for SaveOutputFiles, do the default behavior. Otherwise, get their choices. *)
+    sof = OptionValue[SaveOutputFiles];
+    If[sof=={},
+        SavePath="";SaveFiles=OutputFiles,
+        If[Length[sof]==2,
+            SavePath=sof[[1]];SaveFiles=sof[[2]],
+            Message[FindVacua::badsave];Return[False,Module]]];
+    (* If the user provided any files names to SaveOutputFiles which aren't Bertini output files, warn them and exit *)
+    If[Complement[SaveFiles,OutputFiles]!={},Message[FindVacua::badsave];Return[False,Module]];
+    (* Who can ever remember if you're supposed to have a trailing / or not, anyhow? *)
+    If[StringTake[LocPrefix,-1]!="/",LocPrefix=LocPrefix<>"/"];
+    (* Actually run Bertini now, but warn and exit if it can't be found *)
+    Quiet[Check[RunProcess[{LocPrefix<>"bertini",OptionValue[FileName]}],Message[FindVacua::nobertini];Return[False,Module],RunProcess::pnfd],RunProcess::pnfd];
+    (* Rename all of the files if desired, changing the contents of SaveFiles as we go. *)
+    If[Suffix!="",
+        For[i=1,i<=Length[SaveFiles],i++,
+            If[RunProcess[{"mv",SaveFiles[[i]],SaveFiles[[i]]<>Suffix}][[3]]!="",Message[FindVacua::badsave]];
+            SaveFiles[[i]]=SaveFiles[[i]]<>Suffix]];
+    If[SavePath!="",
+        For[i=1,i<=Length[SaveFiles],i++,
+            If[RunProcess[{"mv",SaveFiles[[i]],SavePath}][[3]]!="",Message[FindVacua::badsave]]]];
+];
 
 (**** ANALYSIS FUNCTIONS ****)
 
@@ -155,6 +199,7 @@ FindEigenvalueList[Vk_,vacua_,A_,OptionsPattern[]]:=Module[{V,X,k,norm=OptionVal
 (** Given an (optional) upper limit 'Q' and an (optional) number of parameters 'n', returns a list of 'n' parameters which satisfy the tadpole condition: **)
 (** \sum_i x_i^2 <= Q, i\in{1,n}, each x_i an integer **)
 GetTadpole[Q_:100,n_:4]:=Module[{tp},
+    If[n<2,Message[GetTadpole::lown];Return[False,Module]];
     While[True, 
         tp = Round[(((Sqrt[Q]+Sqrt[n])*Power[RandomReal[],1/n]/Norm[#])*#)&@RandomVariate[NormalDistribution[],n]];
         If[Norm[tp]<Sqrt[Q],Break[]]
